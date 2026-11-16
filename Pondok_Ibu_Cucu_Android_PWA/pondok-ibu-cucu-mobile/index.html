@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#16324f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <title>Kalender Tamu — Pondok Ibu Cucu</title>
+    <style>
+      :root {
+        --navy: #16324f;
+        --blue: #245b7a;
+        --gold: #d6ad55;
+        --cream: #faf7f0;
+        --ink: #24313d;
+        --muted: #718096;
+        --line: #e5e9ef;
+        --green: #25855a;
+        --red: #b54747;
+        --shadow: 0 12px 32px #16324f12;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f2f5f8;
+        color: var(--ink);
+        font-family:
+          Inter,
+          Segoe UI,
+          Arial,
+          sans-serif;
+      }
+      .top {
+        background: linear-gradient(120deg, #102a43, #245b7a);
+        color: white;
+        padding: 26px max(20px, calc((100vw - 1180px) / 2));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .brand {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+      .mark {
+        width: 52px;
+        height: 52px;
+        border-radius: 15px;
+        background: #ffffff17;
+        border: 1px solid #ffffff38;
+        display: grid;
+        place-items: center;
+        font-size: 27px;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #e7c77b;
+        font-weight: 800;
+      }
+      .top h1 {
+        margin: 3px 0 0;
+        font-size: clamp(22px, 3vw, 31px);
+      }
+      .top p {
+        margin: 5px 0 0;
+        color: #d6e3ee;
+        font-size: 13px;
+      }
+      .top-actions {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+      }
+      .wrap {
+        max-width: 1180px;
+        margin: 24px auto;
+        padding: 0 18px 42px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .stat,
+      .panel {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        box-shadow: var(--shadow);
+      }
+      .stat {
+        padding: 17px 19px;
+      }
+      .stat .label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .stat .num {
+        font-size: 27px;
+        font-weight: 800;
+        color: var(--navy);
+        margin-top: 5px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(310px, 0.85fr);
+        gap: 18px;
+        align-items: start;
+      }
+      .panel {
+        padding: 20px;
+      }
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .panel h2 {
+        font-size: 17px;
+        margin: 0;
+        color: var(--navy);
+      }
+      .sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 5px;
+      }
+      .month-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .month-controls strong {
+        min-width: 125px;
+        text-align: center;
+        font-size: 14px;
+      }
+      .btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .btn:hover {
+        filter: brightness(0.96);
+        transform: translateY(-1px);
+      }
+      .primary {
+        background: var(--gold);
+        color: #1e2a34;
+      }
+      .secondary {
+        background: #edf3f7;
+        color: var(--navy);
+      }
+      .outline {
+        background: white;
+        color: var(--navy);
+        border: 1px solid #d6e0e8;
+      }
+      .small {
+        padding: 7px 10px;
+      }
+      .calendar {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 5px;
+      }
+      .weekday {
+        text-align: center;
+        padding: 9px 0;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 800;
+      }
+      .day {
+        min-height: 83px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 7px;
+        background: #fff;
+        cursor: pointer;
+        overflow: hidden;
+      }
+      .day:hover {
+        border-color: #a9bfd0;
+        background: #f8fbfd;
+      }
+      .day.muted {
+        background: #f8fafb;
+        color: #b0bac4;
+      }
+      .day.today {
+        border: 2px solid var(--gold);
+        padding: 6px;
+      }
+      .day.selected {
+        background: #eef5fa;
+        border-color: var(--blue);
+      }
+      .daynum {
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .event {
+        font-size: 10px;
+        padding: 4px 5px;
+        margin-top: 5px;
+        border-radius: 5px;
+        background: #e7f3ed;
+        color: #1d6b49;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .event.checkout {
+        background: #fff1d8;
+        color: #8a5b0c;
+      }
+      .event.other {
+        background: #e9effa;
+        color: #315d96;
+      }
+      .calendar-foot {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 13px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 5px;
+      }
+      .guest-panel {
+        margin-top: 18px;
+      }
+      .search-row {
+        display: flex;
+        gap: 8px;
+        margin: 12px 0;
+      }
+      .field,
+      select,
+      textarea {
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid #dce3e9;
+        border-radius: 10px;
+        background: white;
+        font: inherit;
+        font-size: 13px;
+        color: var(--ink);
+        outline: none;
+      }
+      .field:focus,
+      select:focus,
+      textarea:focus {
+        border-color: #6e9bb8;
+        box-shadow: 0 0 0 3px #6e9bb81c;
+      }
+      .guest-item {
+        padding: 13px 0;
+        border-top: 1px solid var(--line);
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .guest-item:first-child {
+        border-top: 0;
+      }
+      .guest-name {
+        font-weight: 800;
+        font-size: 13px;
+      }
+      .guest-meta {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 5px;
+        line-height: 1.6;
+      }
+      .tag {
+        display: inline-block;
+        border-radius: 20px;
+        padding: 4px 8px;
+        font-size: 10px;
+        font-weight: 800;
+        background: #e8f5ed;
+        color: #23764e;
+      }
+      .tag.pending {
+        background: #fff2d8;
+        color: #875b11;
+      }
+      .tag.cancel {
+        background: #fdeaea;
+        color: #a83f3f;
+      }
+      .item-actions {
+        display: flex;
+        gap: 5px;
+        align-items: start;
+      }
+      .iconbtn {
+        border: 1px solid var(--line);
+        background: white;
+        border-radius: 8px;
+        padding: 6px 8px;
+        cursor: pointer;
+        color: var(--navy);
+      }
+      .empty {
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+        padding: 25px 10px;
+      }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: #12263bb3;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 10;
+      }
+      .modal-backdrop.show {
+        display: flex;
+      }
+      .modal {
+        background: white;
+        border-radius: 18px;
+        width: min(600px, 100%);
+        max-height: 92vh;
+        overflow: auto;
+        padding: 23px;
+        box-shadow: 0 24px 70px #0003;
+      }
+      .modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+      .modal-head h2 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--navy);
+      }
+      .formgrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 13px;
+      }
+      .formfield label {
+        display: block;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        color: #536475;
+      }
+      .formfield.full {
+        grid-column: 1/-1;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+        margin-top: 18px;
+      }
+      .notice {
+        background: #fff8e8;
+        color: #79591e;
+        padding: 11px 13px;
+        border-radius: 10px;
+        font-size: 11px;
+        line-height: 1.5;
+        margin-top: 16px;
+      }
+      .footer {
+        text-align: center;
+        font-size: 11px;
+        color: #8793a0;
+        margin-top: 20px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      @media (max-width: 1000px) {
+        .stats {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (max-width: 850px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .stats {
+          gap: 8px;
+        }
+        .stat {
+          padding: 14px;
+        }
+        .stat .num {
+          font-size: 23px;
+        }
+        .day {
+          min-height: 70px;
+          padding: 5px;
+        }
+        .event {
+          font-size: 9px;
+          padding: 3px;
+        }
+        .panel {
+          padding: 15px;
+        }
+      }
+      @media (max-width: 480px) {
+        .stats {
+          grid-template-columns: 1fr 1fr;
+        }
+        .stats .stat:last-child {
+          grid-column: auto;
+        }
+        .top {
+          padding: 20px;
+        }
+        .mark {
+          width: 44px;
+          height: 44px;
+        }
+        .day {
+          min-height: 58px;
+        }
+        .weekday {
+          font-size: 10px;
+        }
+        .daynum {
+          font-size: 11px;
+        }
+        .event {
+          max-width: 100%;
+          font-size: 8px;
+        }
+        .month-controls strong {
+          min-width: 110px;
+        }
+        .formgrid {
+          grid-template-columns: 1fr;
+        }
+        .formfield.full {
+          grid-column: auto;
+        }
+        .panel-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <div class="mark">🏡</div>
+        <div>
+          <div class="eyebrow">Pondok Ibu Cucu</div>
+          <h1>Kalender Tamu</h1>
+          <p>
+            Catat reservasi, jadwal menginap, dan informasi tamu dalam satu
+            tempat.
+          </p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn outline" id="backupBtn">⬇ Cadangkan Data</button
+        ><button class="btn outline" id="restoreBtn">⬆ Pulihkan Data</button
+        ><input
+          type="file"
+          id="restoreFile"
+          accept="application/json"
+          class="hidden"
+        /><button class="btn outline" id="exportBtn">Ekspor CSV</button
+        ><button class="btn primary" id="addBtn">＋ Tambah Tamu</button>
+      </div>
+    </header>
+    <main class="wrap">
+      <section class="stats">
+        <div class="stat">
+          <div class="label">Check-in bulan ini</div>
+          <div class="num" id="monthCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Sedang menginap</div>
+          <div class="num" id="todayCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Reservasi mendatang</div>
+          <div class="num" id="upcomingCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Total nilai reservasi aktif</div>
+          <div class="num" id="revenueCount" style="font-size: 19px">Rp0</div>
+        </div>
+        <div class="stat">
+          <div class="label">Sisa pembayaran</div>
+          <div class="num" id="balanceCount" style="font-size: 19px">Rp0</div>
+        </div>
+      </section>
+      <div class="layout">
+        <div>
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Jadwal Penginapan</h2>
+                <div class="sub">
+                  Pilih tanggal untuk melihat tamu pada hari tersebut.
+                </div>
+              </div>
+              <div class="month-controls">
+                <button
+                  class="btn secondary small"
+                  id="prevMonth"
+                  aria-label="Bulan sebelumnya"
+                >
+                  ‹</button
+                ><strong id="monthLabel"></strong
+                ><button
+                  class="btn secondary small"
+                  id="nextMonth"
+                  aria-label="Bulan berikutnya"
+                >
+                  ›</button
+                ><button class="btn outline small" id="todayBtn">
+                  Hari ini
+                </button>
+              </div>
+            </div>
+            <div class="calendar" id="calendar"></div>
+            <div class="calendar-foot">
+              <span
+                ><i class="dot" style="background: #25855a"></i>Check-in</span
+              ><span
+                ><i class="dot" style="background: #d6ad55"></i>Check-out</span
+              ><span
+                ><i class="dot" style="background: #315d96"></i>Menginap</span
+              >
+            </div>
+          </section>
+          <section class="panel guest-panel">
+            <div class="panel-head">
+              <div>
+                <h2 id="selectedTitle">Daftar Tamu</h2>
+                <div class="sub" id="selectedSub">
+                  Tamu pada tanggal yang dipilih.
+                </div>
+              </div>
+              <button class="btn primary small" id="addDateBtn">
+                ＋ Catat
+              </button>
+            </div>
+            <div id="dayGuests"></div>
+          </section>
+        </div>
+        <aside class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Semua Reservasi</h2>
+              <div class="sub">Cari nama tamu atau nomor telepon.</div>
+            </div>
+          </div>
+          <div class="search-row">
+            <input
+              class="field"
+              id="search"
+              placeholder="Cari nama / telepon…"
+              aria-label="Cari tamu"
+            />
+          </div>
+          <div id="allGuests"></div>
+          <div class="notice">
+            <b>Catatan penyimpanan:</b> Data disimpan di browser/perangkat ini.
+            Gunakan Cadangkan Data untuk menyimpan file JSON dan Pulihkan Data
+            untuk mengembalikannya. Ekspor CSV tersedia untuk rekap Excel. Nomor
+            kamar yang sama tidak bisa dipesan pada tanggal yang saling
+            bertumpuk. Jika data browser dihapus atau memakai perangkat lain,
+            data lokal ini tidak otomatis ikut berpindah.
+          </div>
+        </aside>
+      </div>
+      <div class="footer">
+        Pondok Ibu Cucu · Kalender pencatatan tamu · Versi 2
+      </div>
+    </main>
+    <div class="modal-backdrop" id="modalBackdrop">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modalTitle"
+      >
+        <div class="modal-head">
+          <h2 id="modalTitle">Tambah data tamu</h2>
+          <button class="iconbtn" id="closeModal" aria-label="Tutup">✕</button>
+        </div>
+        <form id="guestForm">
+          <input type="hidden" id="guestId" />
+          <div class="formgrid">
+            <div class="formfield">
+              <label for="guestName">Nama tamu *</label
+              ><input
+                class="field"
+                id="guestName"
+                required
+                placeholder="Nama lengkap"
+              />
+            </div>
+            <div class="formfield">
+              <label for="guestPhone">Nomor telepon</label
+              ><input
+                class="field"
+                id="guestPhone"
+                inputmode="tel"
+                placeholder="08xxxxxxxxxx"
+              />
+            </div>
+            <div class="formfield">
+              <label for="checkin">Tanggal check-in *</label
+              ><input class="field" id="checkin" type="date" required />
+            </div>
+            <div class="formfield">
+              <label for="checkout">Tanggal check-out *</label
+              ><input class="field" id="checkout" type="date" required />
+            </div>
+            <div class="formfield">
+              <label for="roomType">Tipe kamar</label
+              ><select id="roomType">
+                <option>Standard</option>
+                <option>Deluxe</option>
+                <option>Kamar lain</option>
+                <option>Belum ditentukan</option>
+              </select>
+            </div>
+            <div class="formfield">
+              <label for="roomNumber">Nomor / nama kamar</label
+              ><input
+                class="field"
+                id="roomNumber"
+                placeholder="Contoh: Standard 1"
+              />
+            </div>
+            <div class="formfield">
+              <label for="guestCount">Jumlah tamu</label
+              ><input
+                class="field"
+                id="guestCount"
+                type="number"
+                min="1"
+                value="1"
+              />
+            </div>
+            <div class="formfield">
+              <label for="status">Status reservasi</label
+              ><select id="status">
+                <option value="confirmed">Dikonfirmasi</option>
+                <option value="pending">Menunggu konfirmasi</option>
+                <option value="cancel">Dibatalkan</option>
+              </select>
+            </div>
+            <div class="formfield">
+              <label for="payment">Status pembayaran</label
+              ><select id="payment">
+                <option>Belum dicatat</option>
+                <option>Belum lunas</option>
+                <option>Lunas</option>
+                <option>Bayar saat check-in</option>
+              </select>
+            </div>
+            <div class="formfield">
+              <label for="totalPrice">Total biaya menginap (Rp)</label
+              ><input
+                class="field"
+                id="totalPrice"
+                type="number"
+                min="0"
+                step="1000"
+                value="0"
+              />
+            </div>
+            <div class="formfield">
+              <label for="paidAmount">Uang yang sudah dibayar (Rp)</label
+              ><input
+                class="field"
+                id="paidAmount"
+                type="number"
+                min="0"
+                step="1000"
+                value="0"
+              />
+            </div>
+            <div class="formfield full">
+              <label for="notes">Catatan</label
+              ><textarea
+                id="notes"
+                rows="3"
+                placeholder="Contoh: permintaan khusus, jumlah kamar, informasi tambahan"
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn secondary" id="cancelModal">
+              Batal</button
+            ><button type="submit" class="btn primary">Simpan Tamu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const STORE = "pondokIbuCucuGuestsV1";
+        let guests = [];
+        try {
+          guests = JSON.parse(localStorage.getItem(STORE) || "[]");
+        } catch (e) {
+          guests = [];
+        }
+        let cursor = new Date();
+        cursor = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+        let selected = iso(new Date());
+        let editing = false;
+        function iso(d) {
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        }
+        function parse(s) {
+          const [y, m, d] = s.split("-").map(Number);
+          return new Date(y, m - 1, d);
+        }
+        function fmt(
+          s,
+          opts = { day: "numeric", month: "short", year: "numeric" },
+        ) {
+          if (!s) return "—";
+          return parse(s).toLocaleDateString("id-ID", opts);
+        }
+        function esc(s) {
+          return String(s ?? "").replace(
+            /[&<>"']/g,
+            (c) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;",
+              })[c],
+          );
+        }
+        function save() {
+          localStorage.setItem(STORE, JSON.stringify(guests));
+          render();
+        }
+        function statusTag(g) {
+          return g.status === "pending"
+            ? '<span class="tag pending">Menunggu</span>'
+            : g.status === "cancel"
+              ? '<span class="tag cancel">Dibatalkan</span>'
+              : '<span class="tag">Dikonfirmasi</span>';
+        }
+        function renderCalendar() {
+          const cal = $("calendar");
+          cal.innerHTML = "";
+          const weekdays = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+          weekdays.forEach((w) => {
+            const e = document.createElement("div");
+            e.className = "weekday";
+            e.textContent = w;
+            cal.append(e);
+          });
+          $("monthLabel").textContent = cursor.toLocaleDateString("id-ID", {
+            month: "long",
+            year: "numeric",
+          });
+          const first = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+          const start = new Date(first);
+          start.setDate(1 - first.getDay());
+          const today = iso(new Date());
+          for (let i = 0; i < 42; i++) {
+            const d = new Date(start);
+            d.setDate(start.getDate() + i);
+            const ds = iso(d);
+            const cell = document.createElement("div");
+            cell.className =
+              "day" +
+              (d.getMonth() !== cursor.getMonth() ? " muted" : "") +
+              (ds === today ? " today" : "") +
+              (ds === selected ? " selected" : "");
+            cell.innerHTML = `<div class="daynum">${d.getDate()}</div>`;
+            guests
+              .filter((g) => g.status !== "cancel" && g.checkin === ds)
+              .slice(0, 2)
+              .forEach((g) => {
+                const ev = document.createElement("div");
+                ev.className = "event";
+                ev.textContent = "↓ " + g.name;
+                cell.append(ev);
+              });
+            guests
+              .filter((g) => g.status !== "cancel" && g.checkout === ds)
+              .slice(0, 1)
+              .forEach((g) => {
+                const ev = document.createElement("div");
+                ev.className = "event checkout";
+                ev.textContent = "↑ " + g.name;
+                cell.append(ev);
+              });
+            const staying = guests.filter(
+              (g) => g.status !== "cancel" && g.checkin < ds && g.checkout > ds,
+            );
+            if (staying.length) {
+              const ev = document.createElement("div");
+              ev.className = "event other";
+              ev.textContent = "• " + staying.length + " menginap";
+              cell.append(ev);
+            }
+            cell.addEventListener("click", () => {
+              selected = ds;
+              render();
+            });
+            cal.append(cell);
+          }
+        }
+        function rupiah(n) {
+          return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            maximumFractionDigits: 0,
+          }).format(Number(n) || 0);
+        }
+        function guestCard(g) {
+          const balance = Math.max(
+            0,
+            (Number(g.totalPrice) || 0) - (Number(g.paidAmount) || 0),
+          );
+          return `<div class="guest-item"><div><div class="guest-name">${esc(g.name)} ${statusTag(g)}</div><div class="guest-meta">${fmt(g.checkin)} → ${fmt(g.checkout)}<br>${esc(g.roomType || "Belum ditentukan")}${g.roomNumber ? " · Kamar " + esc(g.roomNumber) : ""} · ${esc(g.guestCount || 1)} tamu${g.phone ? " · " + esc(g.phone) : ""}<br>Total: ${rupiah(g.totalPrice)} · Dibayar: ${rupiah(g.paidAmount)} · Sisa: ${rupiah(balance)}<br>Pembayaran: ${esc(g.payment || "Belum dicatat")}${g.notes ? "<br>Catatan: " + esc(g.notes) : ""}</div></div><div class="item-actions"><button class="iconbtn" title="Edit" data-edit="${g.id}">✎</button><button class="iconbtn" title="Hapus" data-delete="${g.id}">🗑</button></div></div>`;
+        }
+        function bindCards(root) {
+          root
+            .querySelectorAll("[data-edit]")
+            .forEach((b) => (b.onclick = () => openForm(b.dataset.edit)));
+          root.querySelectorAll("[data-delete]").forEach(
+            (b) =>
+              (b.onclick = () => {
+                const g = guests.find((x) => x.id === b.dataset.delete);
+                if (g && confirm(`Hapus data tamu ${g.name}?`)) {
+                  guests = guests.filter((x) => x.id !== g.id);
+                  save();
+                }
+              }),
+          );
+        }
+        function renderLists() {
+          const day = guests
+            .filter(
+              (g) =>
+                g.checkin <= selected &&
+                g.checkout > selected &&
+                g.status !== "cancel",
+            )
+            .sort((a, b) => a.checkin.localeCompare(b.checkin));
+          $("selectedTitle").textContent =
+            "Tamu · " +
+            fmt(selected, { day: "numeric", month: "long", year: "numeric" });
+          $("selectedSub").textContent = day.length
+            ? `${day.length} reservasi aktif pada tanggal ini.`
+            : "Tidak ada reservasi aktif pada tanggal ini.";
+          $("dayGuests").innerHTML = day.length
+            ? day.map(guestCard).join("")
+            : '<div class="empty">Belum ada tamu yang menginap pada tanggal ini.</div>';
+          bindCards($("dayGuests"));
+          const q = $("search").value.toLowerCase().trim();
+          const list = guests
+            .filter(
+              (g) =>
+                !q ||
+                [g.name, g.phone, g.roomType, g.notes].some((x) =>
+                  (x || "").toLowerCase().includes(q),
+                ),
+            )
+            .sort((a, b) => a.checkin.localeCompare(b.checkin));
+          $("allGuests").innerHTML = list.length
+            ? list.map(guestCard).join("")
+            : '<div class="empty">Belum ada data tamu.<br>Tekan “Tambah Tamu” untuk mulai mencatat.</div>';
+          bindCards($("allGuests"));
+        }
+        function renderStats() {
+          const now = iso(new Date()),
+            month = now.slice(0, 7),
+            active = guests.filter((g) => g.status !== "cancel");
+          $("monthCount").textContent = active.filter(
+            (g) => g.checkin.slice(0, 7) === month,
+          ).length;
+          $("todayCount").textContent = active.filter(
+            (g) => g.checkin <= now && g.checkout > now,
+          ).length;
+          $("upcomingCount").textContent = active.filter(
+            (g) => g.checkin > now,
+          ).length;
+          $("revenueCount").textContent = rupiah(
+            active.reduce((s, g) => s + (Number(g.totalPrice) || 0), 0),
+          );
+          $("balanceCount").textContent = rupiah(
+            active.reduce(
+              (s, g) =>
+                s +
+                Math.max(
+                  0,
+                  (Number(g.totalPrice) || 0) - (Number(g.paidAmount) || 0),
+                ),
+              0,
+            ),
+          );
+        }
+        function render() {
+          renderCalendar();
+          renderLists();
+          renderStats();
+        }
+        function openForm(id) {
+          editing = !!id;
+          $("guestForm").reset();
+          $("guestId").value = "";
+          $("guestCount").value = 1;
+          $("modalTitle").textContent = editing
+            ? "Edit data tamu"
+            : "Tambah data tamu";
+          if (id) {
+            const g = guests.find((x) => x.id === id);
+            if (!g) return;
+            $("guestId").value = g.id;
+            $("guestName").value = g.name;
+            $("guestPhone").value = g.phone || "";
+            $("checkin").value = g.checkin;
+            $("checkout").value = g.checkout;
+            $("roomType").value = g.roomType || "Standard";
+            $("roomNumber").value = g.roomNumber || "";
+            $("guestCount").value = g.guestCount || 1;
+            $("status").value = g.status || "confirmed";
+            $("payment").value = g.payment || "Belum dicatat";
+            $("totalPrice").value = g.totalPrice || 0;
+            $("paidAmount").value = g.paidAmount || 0;
+            $("notes").value = g.notes || "";
+          } else {
+            $("checkin").value = selected;
+            $("checkout").value = iso(
+              new Date(parse(selected).getTime() + 86400000),
+            );
+          }
+          $("modalBackdrop").classList.add("show");
+          setTimeout(() => $("guestName").focus(), 30);
+        }
+        function closeForm() {
+          $("modalBackdrop").classList.remove("show");
+        }
+        $("addBtn").onclick = () => openForm();
+        $("addDateBtn").onclick = () => openForm();
+        $("closeModal").onclick = closeForm;
+        $("cancelModal").onclick = closeForm;
+        $("modalBackdrop").addEventListener("click", (e) => {
+          if (e.target === $("modalBackdrop")) closeForm();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeForm();
+        });
+        $("prevMonth").onclick = () => {
+          cursor = new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1);
+          renderCalendar();
+        };
+        $("nextMonth").onclick = () => {
+          cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+          renderCalendar();
+        };
+        $("todayBtn").onclick = () => {
+          const n = new Date();
+          cursor = new Date(n.getFullYear(), n.getMonth(), 1);
+          selected = iso(n);
+          render();
+        };
+        $("search").addEventListener("input", renderLists);
+        $("guestForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const ci = $("checkin").value,
+            co = $("checkout").value;
+          if (co <= ci) {
+            alert("Tanggal check-out harus setelah tanggal check-in.");
+            return;
+          }
+          const id =
+            $("guestId").value ||
+            "g" +
+              Date.now().toString(36) +
+              Math.random().toString(36).slice(2, 6);
+          const item = {
+            id,
+            name: $("guestName").value.trim(),
+            phone: $("guestPhone").value.trim(),
+            checkin: ci,
+            checkout: co,
+            roomType: $("roomType").value,
+            roomNumber: $("roomNumber").value.trim(),
+            totalPrice: Math.max(0, Number($("totalPrice").value) || 0),
+            paidAmount: Math.max(0, Number($("paidAmount").value) || 0),
+            guestCount: Math.max(1, Number($("guestCount").value) || 1),
+            status: $("status").value,
+            payment: $("payment").value,
+            notes: $("notes").value.trim(),
+          };
+          if (!item.name) {
+            alert("Nama tamu wajib diisi.");
+            return;
+          }
+          if (item.paidAmount > item.totalPrice && item.totalPrice > 0) {
+            alert("Uang yang sudah dibayar tidak boleh melebihi total biaya.");
+            return;
+          }
+          if (item.roomNumber && item.status !== "cancel") {
+            const conflict = guests.find(
+              (g) =>
+                g.id !== id &&
+                g.status !== "cancel" &&
+                g.roomNumber &&
+                g.roomNumber.toLowerCase() === item.roomNumber.toLowerCase() &&
+                ci < g.checkout &&
+                co > g.checkin,
+            );
+            if (conflict) {
+              alert(
+                "Jadwal kamar bentrok dengan reservasi " +
+                  conflict.name +
+                  " (" +
+                  conflict.checkin +
+                  " sampai " +
+                  conflict.checkout +
+                  "). Pilih kamar atau tanggal lain.",
+              );
+              return;
+            }
+          }
+          const index = guests.findIndex((g) => g.id === id);
+          if (index >= 0) guests[index] = item;
+          else guests.push(item);
+          selected = ci;
+          cursor = new Date(parse(ci).getFullYear(), parse(ci).getMonth(), 1);
+          closeForm();
+          save();
+        });
+        $("exportBtn").onclick = () => {
+          if (!guests.length) {
+            alert("Belum ada data untuk diekspor.");
+            return;
+          }
+          const headers = [
+            "Nama tamu",
+            "Telepon",
+            "Check-in",
+            "Check-out",
+            "Tipe kamar",
+            "Nomor kamar",
+            "Jumlah tamu",
+            "Total biaya",
+            "Sudah dibayar",
+            "Sisa pembayaran",
+            "Status",
+            "Pembayaran",
+            "Catatan",
+          ];
+          const rows = guests.map((g) => [
+            g.name,
+            g.phone,
+            g.checkin,
+            g.checkout,
+            g.roomType,
+            g.roomNumber,
+            g.guestCount,
+            g.totalPrice,
+            g.paidAmount,
+            Math.max(
+              0,
+              (Number(g.totalPrice) || 0) - (Number(g.paidAmount) || 0),
+            ),
+            g.status === "confirmed"
+              ? "Dikonfirmasi"
+              : g.status === "pending"
+                ? "Menunggu konfirmasi"
+                : "Dibatalkan",
+            g.payment,
+            g.notes,
+          ]);
+          const csv = [headers, ...rows]
+            .map((r) =>
+              r
+                .map((v) => '"' + String(v ?? "").replace(/"/g, '""') + '"')
+                .join(","),
+            )
+            .join("\r\n");
+          const blob = new Blob(["\ufeff" + csv], {
+            type: "text/csv;charset=utf-8;",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "data-tamu-pondok-ibu-cucu.csv";
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+        $("backupBtn").onclick = () => {
+          const blob = new Blob(
+            [
+              JSON.stringify(
+                {
+                  app: "Pondok Ibu Cucu",
+                  version: 2,
+                  exportedAt: new Date().toISOString(),
+                  guests,
+                },
+                null,
+                2,
+              ),
+            ],
+            { type: "application/json" },
+          );
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "cadangan-pondok-ibu-cucu.json";
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+        $("restoreBtn").onclick = () => $("restoreFile").click();
+        $("restoreFile").onchange = async (e) => {
+          const f = e.target.files[0];
+          if (!f) return;
+          try {
+            const data = JSON.parse(await f.text());
+            const incoming = Array.isArray(data) ? data : data.guests;
+            if (!Array.isArray(incoming)) throw new Error("Format tidak cocok");
+            if (
+              !confirm(
+                "Pulihkan data akan mengganti daftar tamu yang saat ini ada di browser. Lanjutkan?",
+              )
+            )
+              return;
+            guests = incoming;
+            localStorage.setItem(STORE, JSON.stringify(guests));
+            render();
+            alert("Data berhasil dipulihkan.");
+          } catch (err) {
+            alert("File cadangan tidak valid atau tidak bisa dibaca.");
+          } finally {
+            e.target.value = "";
+          }
+        };
+        render();
+      })();
+    </script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () =>
+          navigator.serviceWorker.register("./sw.js").catch(() => {}),
+        );
+      }
+    </script>
+  </body>
+</html>
